@@ -13,6 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StatsServiceImpl implements StatsService {
     private final StatsRepository repository;
+
     @Override
     public void saveHit(Hit hit) {
         repository.save(hit);
