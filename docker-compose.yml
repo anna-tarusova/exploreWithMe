@@ -1,7 +1,7 @@
 services:
   stats-client:
     environment:
-      STATS_SERVER_URL: http://stats-server:9091
+      STATS_SERVER_URL: http://localhost:9091
     build:
       context: .
     ports:
