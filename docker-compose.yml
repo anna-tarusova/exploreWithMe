@@ -1,24 +1,4 @@
 services:
-#  stats-client:
-#    environment:
-#      STATS_SERVER_URL: http://stats-server:9091
-#    build:
-#      context: .
-#    ports:
-#      - "9090:9090"
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "http://localhost:9090/actuator/health" ]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 3
-#      start_period: 60s
-#    container_name: stats-client
-#    depends_on:
-#      - stats-server
-#    networks:
-#      - stats-network
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
   stats-server:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats-db
@@ -61,17 +41,39 @@ services:
     image: adminer
     container_name: adminer
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       ADMINER_DEFAULT_SERVER: stats-db
     depends_on:
       - stats-db
+      - ewm-db
     restart: unless-stopped
     networks:
       - stats-network
+      - ewm-network
+
+  ewm-db:
+    image: postgres:16.1
+    container_name: ewm-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ewm-db
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d stats-db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ewm-network
 
 networks:
   stats-network:
+    driver: bridge
+  ewm-network:
     driver: bridge
 
 #  ewm-service:
