@@ -6,8 +6,6 @@ import ru.practicum.entities.Category;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.repositories.CategoriesRepository;
 
-import java.util.Optional;
-
 @Component
 @RequiredArgsConstructor
 public class CategoriesServiceImpl implements CategoriesService {
@@ -33,5 +31,11 @@ public class CategoriesServiceImpl implements CategoriesService {
             categoryToUpdate.setName(category.getName());
         }
         return categoriesRepository.save(categoryToUpdate);
+    }
+
+    @Override
+    public Category getCategoryById(Long id) {
+        return categoriesRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Category %d is not found", id)));
     }
 }

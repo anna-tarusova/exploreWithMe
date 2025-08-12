@@ -5,6 +5,9 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @Entity
@@ -17,4 +20,6 @@ public class User {
     String name;
     @Column(unique = true, nullable = false)
     String email;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<Event> events = new ArrayList<>();
 }

@@ -5,6 +5,9 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
@@ -14,4 +17,6 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     String name;
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<Event> events = new ArrayList<>();
 }
