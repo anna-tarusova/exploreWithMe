@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.entities.enums.StateAction;
+import ru.practicum.entities.enums.CreateStateAction;
 
 import java.time.LocalDateTime;
 
@@ -20,7 +20,6 @@ public class UpdateEventAdminRequestDto {
     Boolean paid;
     Integer participantLimit;
     Boolean requestModeration;
-    StateAction state;
+    CreateStateAction state;
     String title;
-
 }

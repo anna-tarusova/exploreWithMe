@@ -4,8 +4,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import ru.practicum.entities.enums.State;
-import ru.practicum.entities.enums.StateAction;
+import ru.practicum.entities.enums.EventState;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import java.time.LocalDateTime;
 
@@ -36,7 +40,7 @@ public class Event {
     @Column(nullable = false, length = 120)
     String title;
 
-    @Column(nullable = true)
+    @Column()
     LocalDateTime publishedOn;
 
     @CreatedDate
@@ -53,6 +57,12 @@ public class Event {
     @JoinColumn(name = "category_id", nullable = false)
     Category category;
 
+    @ManyToMany(mappedBy = "events", fetch = FetchType.LAZY)
+    private Set<Compilation> compilations = new HashSet<>();
+
     @Column(nullable = false)
-    State state;
+    EventState state;
+
+    @ManyToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    private List<Request> requests = new ArrayList<>();
 }

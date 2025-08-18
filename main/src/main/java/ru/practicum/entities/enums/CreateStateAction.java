@@ -1,6 +1,6 @@
 package ru.practicum.entities.enums;
 
-public enum StateAction {
+public enum CreateStateAction {
     PUBLISH_EVENT,
     REJECT_EVENT
 }

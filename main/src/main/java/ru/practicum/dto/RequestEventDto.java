@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class RequestEventDto {
     @Size(min = 20, max = 2000)
+    @NotNull
+    @NotBlank
     String annotation;
     @NotNull
     Long category;
@@ -28,6 +30,7 @@ public class RequestEventDto {
     @Future(message = "Дата события должна быть в будущем")
     LocalDateTime eventDate;
     Boolean paid;
+    @Min(value = 0)
     int participantLimit;
     Boolean requestModeration;
     @Size(min = 3, max = 120)

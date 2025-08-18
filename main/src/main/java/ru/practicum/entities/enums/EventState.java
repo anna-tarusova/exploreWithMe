@@ -1,6 +1,6 @@
 package ru.practicum.entities.enums;
 
-public enum State {
+public enum EventState {
       WAITING,
       PUBLISHED,
       CANCELLED

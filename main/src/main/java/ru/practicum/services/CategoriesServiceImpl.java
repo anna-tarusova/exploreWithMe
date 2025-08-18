@@ -1,10 +1,15 @@
 package ru.practicum.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import ru.practicum.entities.Category;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.repositories.CategoriesRepository;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -37,5 +42,11 @@ public class CategoriesServiceImpl implements CategoriesService {
     public Category getCategoryById(Long id) {
         return categoriesRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Category %d is not found", id)));
+    }
+
+    @Override
+    public List<Category> getCategories(int from, int size) {
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").ascending());
+        return categoriesRepository.getCategories(pageable).toList();
     }
 }

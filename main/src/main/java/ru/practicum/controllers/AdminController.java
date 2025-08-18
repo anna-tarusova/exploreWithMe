@@ -5,22 +5,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.CategoryDto;
-import ru.practicum.dto.EventFullDto;
-import ru.practicum.dto.UpdateEventAdminRequestDto;
-import ru.practicum.dto.UserDto;
+import ru.practicum.dto.*;
 import ru.practicum.entities.Category;
+import ru.practicum.entities.Compilation;
 import ru.practicum.entities.Event;
 import ru.practicum.entities.User;
-import ru.practicum.entities.enums.State;
-import ru.practicum.entities.enums.StateAction;
+import ru.practicum.entities.enums.EventState;
+import ru.practicum.entities.enums.CreateStateAction;
+import ru.practicum.mappers.CompilationMapper;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.services.CategoriesService;
+import ru.practicum.services.CompilationService;
 import ru.practicum.services.EventService;
 import ru.practicum.services.UserService;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static ru.practicum.mappers.CategoryMapper.toEntity;
@@ -31,13 +30,12 @@ import static ru.practicum.mappers.UserMapper.toDto;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminController extends BaseController {
 
     private final CategoriesService categoriesService;
     private final UserService userService;
     private final EventService eventService;
-
-    private final DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final CompilationService compilationService;
 
     @PostMapping("/categories")
     public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
@@ -84,7 +82,7 @@ public class AdminController {
     @GetMapping("/events")
     public List<EventFullDto> getEvents(
             @RequestParam(required = false) List<Long> users,
-            @RequestParam(required = false) List<State> states,
+            @RequestParam(required = false) List<EventState> states,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam String rangeStart,
             @RequestParam String rangeEnd,
@@ -133,10 +131,10 @@ public class AdminController {
         if (request.getRequestModeration() != null) {
             event.setRequestModeration(request.getRequestModeration());
         }
-        if (request.getState() == StateAction.PUBLISH_EVENT) {
-            event.setState(State.PUBLISHED);
-        } else if (request.getState() == StateAction.REJECT_EVENT) {
-            event.setState(State.CANCELLED);
+        if (request.getState() == CreateStateAction.PUBLISH_EVENT) {
+            event.setState(EventState.PUBLISHED);
+        } else if (request.getState() == CreateStateAction.REJECT_EVENT) {
+            event.setState(EventState.CANCELLED);
         }
 
         if (request.getTitle() != null) {
@@ -144,5 +142,24 @@ public class AdminController {
         }
         event = eventService.saveEvent(event);
         return new ResponseEntity<>(EventMapper.toDto(event), HttpStatus.OK);
+    }
+
+    @PostMapping("/compilations")
+    public ResponseEntity<CompilationDto> createCompilation(@Valid @RequestBody NewCompilationDto compilationDto) {
+        Compilation compilation = compilationService.createCompilation(compilationDto);
+        return new ResponseEntity<>(CompilationMapper.toDto(compilation), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/compilations/{compId}")
+    public ResponseEntity<CompilationDto> deleteCompilation(@PathVariable("compId") Long compId) {
+        compilationService.deleteCompilation(compId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping("/compilations/{compId}")
+    public ResponseEntity<CompilationDto> updateCompilation(@PathVariable("compId") Long compId,
+                                                            @Valid @RequestBody UpdateCompilationRequestDto request) {
+        Compilation compilation = compilationService.updateCompilation(compId, request);
+        return new ResponseEntity<>(CompilationMapper.toDto(compilation), HttpStatus.OK);
     }
 }
