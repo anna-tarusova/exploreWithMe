@@ -65,7 +65,7 @@ public class RequestServiceImpl implements RequestService {
                 int countOfOtherConfirmedRequests = requestRepository.countOfOtherConfirmedRequests(eventId, ids);
                 int remain = event.getParticipantLimit() - countOfOtherConfirmedRequests;
 
-                if (remain <= 0) {
+                if (remain < ids.size()) {
                     throw new ConflictException(String.format("Participation limit of the event with id = %d has been exceeded", eventId));
                 }
             }
