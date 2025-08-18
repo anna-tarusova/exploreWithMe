@@ -52,6 +52,26 @@ services:
       - stats-network
       - ewm-network
 
+  ewm-service:
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm-db
+    build:
+      context: .
+      dockerfile: ./main/Dockerfile
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    container_name: ewm-service
+    depends_on:
+      - ewm-db
+    networks:
+      - ewm-network
+
   ewm-db:
     image: postgres:16.1
     container_name: ewm-db
