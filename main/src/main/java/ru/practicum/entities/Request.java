@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @Entity
-@Table(name = "requests", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "event_id"}))
+@Table(name = "requests",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "event_id"}),
+        indexes = {@Index(name = "idx_event_id", columnList = "event_id")})
 @EntityListeners(AuditingEntityListener.class)
 public class Request {
     @Id

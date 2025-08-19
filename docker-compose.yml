@@ -1,23 +1,23 @@
 services:
-  stats-server:
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats-db
-    build:
-      context: .
-      dockerfile: ./stats/statsServer/Dockerfile
-    ports:
-      - "9090:9091"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    container_name: stats-server
-    depends_on:
-      - stats-db
-    networks:
-      - stats-network
+#  stats-server:
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats-db
+#    build:
+#      context: .
+#      dockerfile: ./stats/statsServer/Dockerfile
+#    ports:
+#      - "9090:9091"
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 60s
+#    container_name: stats-server
+#    depends_on:
+#      - stats-db
+#    networks:
+#      - stats-network
 
   stats-db:
     image: postgres:16.1
@@ -26,8 +26,8 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
       POSTGRES_DB: stats-db
-    #ports:
-    #  - "5432:5432"
+    ports:
+      - "6432:5432"
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U root -d stats-db" ]
@@ -52,25 +52,25 @@ services:
       - stats-network
       - ewm-network
 
-  ewm-service:
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm-db
-    build:
-      context: .
-      dockerfile: ./main/Dockerfile
-    ports:
-      - "8080:8080"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    container_name: ewm-service
-    depends_on:
-      - ewm-db
-    networks:
-      - ewm-network
+#  ewm-service:
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm-db
+#    build:
+#      context: .
+#      dockerfile: ./main/Dockerfile
+#    ports:
+#      - "8080:8080"
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 30s
+#    container_name: ewm-service
+#    depends_on:
+#      - ewm-db
+#    networks:
+#      - ewm-network
 
   ewm-db:
     image: postgres:16.1

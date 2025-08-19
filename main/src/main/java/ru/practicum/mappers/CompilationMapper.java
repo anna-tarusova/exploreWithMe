@@ -19,7 +19,9 @@ public class CompilationMapper {
         if (compilation == null) return null;
         CompilationDto dto = new CompilationDto();
         dto.setId(compilation.getId());
-        dto.setEvents(compilation.getEvents().stream().map(EventMapper::toShortDto).toList());
+        if (compilation.getEvents() != null) {
+            dto.setEvents(compilation.getEvents().stream().map(EventMapper::toShortDto).toList());
+        }
         dto.setPinned(compilation.getPinned());
         dto.setTitle(compilation.getTitle());
         return dto;

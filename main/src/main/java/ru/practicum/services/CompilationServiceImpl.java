@@ -28,8 +28,10 @@ public class CompilationServiceImpl implements CompilationService {
     public Compilation createCompilation(NewCompilationDto newCompilationDto) {
         try {
             Compilation compilation = CompilationMapper.toEntity(newCompilationDto);
-            List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
-            compilation.setEvents(events);
+            if (newCompilationDto.getEvents() != null) {
+                List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
+                compilation.setEvents(events);
+            }
             return compilationRepository.save(compilation);
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("Событие не может быть добавлено более одного раза в подборку");

@@ -12,6 +12,7 @@ import ru.practicum.entities.Event;
 import ru.practicum.entities.User;
 import ru.practicum.entities.enums.EventState;
 import ru.practicum.entities.enums.CreateStateAction;
+import ru.practicum.exceptions.ConflictException;
 import ru.practicum.mappers.CompilationMapper;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.services.CategoriesService;
@@ -38,10 +39,10 @@ public class AdminController extends BaseController {
     private final CompilationService compilationService;
 
     @PostMapping("/categories")
-    public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody @Valid CategoryDto categoryDto) {
         Category category = toEntity(categoryDto);
         category = categoriesService.saveCategory(category);
-        return new ResponseEntity<>(toDto(category), HttpStatus.OK);
+        return new ResponseEntity<>(toDto(category), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/categories/{catId}")
@@ -51,7 +52,7 @@ public class AdminController extends BaseController {
     }
 
     @PatchMapping("/categories/{catId}")
-    public ResponseEntity<CategoryDto> partiallyUpdateCategory(@PathVariable("catId") Long catId, @RequestBody CategoryDto categoryDto) {
+    public ResponseEntity<CategoryDto> partiallyUpdateCategory(@PathVariable("catId") Long catId, @RequestBody @Valid CategoryDto categoryDto) {
         Category category = toEntity(categoryDto);
         category = categoriesService.partiallyUpdate(category, catId);
         return new ResponseEntity<>(toDto(category), HttpStatus.OK);
@@ -84,22 +85,26 @@ public class AdminController extends BaseController {
             @RequestParam(required = false) List<Long> users,
             @RequestParam(required = false) List<EventState> states,
             @RequestParam(required = false) List<Long> categories,
-            @RequestParam String rangeStart,
-            @RequestParam String rangeEnd,
+            @RequestParam(required = false) String rangeStart,
+            @RequestParam(required = false) String rangeEnd,
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size) {
 
-        LocalDateTime rs = LocalDateTime.parse(rangeStart, df);
-        LocalDateTime re = LocalDateTime.parse(rangeEnd, df);
+        LocalDateTime rs = rangeStart == null ? null : LocalDateTime.parse(rangeStart, df);
+        LocalDateTime re = rangeEnd == null ? null : LocalDateTime.parse(rangeEnd, df);
 
-        return eventService.getEvents(users, states, categories, rs, re, from, size)
-                .stream().map(EventMapper::toDto).toList();
+        List<EventFullDto> events = eventService.getEvents(users, states, categories, rs, re, from, size)
+                        .stream().map(EventMapper::toDto).toList();
+
+        events.forEach(event -> event.setConfirmedRequests(eventService.countConfirmedRequests(event.getId())));
+
+        return events;
     }
 
     @PatchMapping("/events/{eventId}")
     public ResponseEntity<EventFullDto> changeEvent(
             @PathVariable("eventId") Long eventId,
-            @RequestBody UpdateEventAdminRequestDto request) {
+            @RequestBody @Valid UpdateEventAdminRequestDto request) {
         Event event = eventService.getById(eventId);
         if (request.getAnnotation() != null) {
             event.setAnnotation(request.getAnnotation());
@@ -131,15 +136,23 @@ public class AdminController extends BaseController {
         if (request.getRequestModeration() != null) {
             event.setRequestModeration(request.getRequestModeration());
         }
-        if (request.getState() == CreateStateAction.PUBLISH_EVENT) {
+
+        if (request.getStateAction() == CreateStateAction.PUBLISH_EVENT) {
+            if (event.getState() != EventState.PENDING) {
+                throw new ConflictException("The event is not in the PENDING state");
+            }
             event.setState(EventState.PUBLISHED);
-        } else if (request.getState() == CreateStateAction.REJECT_EVENT) {
-            event.setState(EventState.CANCELLED);
+        } else if (request.getStateAction() == CreateStateAction.REJECT_EVENT) {
+            if (event.getState() == EventState.PUBLISHED) {
+                throw new ConflictException("The event is in the PUBLISHED state");
+            }
+            event.setState(EventState.CANCELED);
         }
 
         if (request.getTitle() != null) {
             event.setTitle(request.getTitle());
         }
+
         event = eventService.saveEvent(event);
         return new ResponseEntity<>(EventMapper.toDto(event), HttpStatus.OK);
     }

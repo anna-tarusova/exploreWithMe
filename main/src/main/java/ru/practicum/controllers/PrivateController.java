@@ -10,6 +10,7 @@ import ru.practicum.entities.Category;
 import ru.practicum.entities.Event;
 import ru.practicum.entities.Request;
 import ru.practicum.entities.User;
+import ru.practicum.entities.enums.RequestStateAction;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.mappers.RequestMapper;
 import ru.practicum.services.CategoriesService;
@@ -34,7 +35,7 @@ public class PrivateController {
 
     @PostMapping("/{userId}/events")
     public ResponseEntity<EventFullDto> createEvent(@PathVariable("userId") Long userId,
-                                                    @Valid @RequestBody RequestEventDto requestEventDto) {
+                                                    @Valid @RequestBody NewEventDto requestEventDto) {
         Category category = categoriesService.getCategoryById(requestEventDto.getCategory());
         User user = userService.getUser(userId);
 
@@ -107,8 +108,9 @@ public class PrivateController {
     }
 
     @GetMapping("/{userId}/events/{eventId}/requests")
-    public ResponseEntity<List<ParticipationRequestDto>> getRequestsByUserAndEvent(@PathVariable("userId") Long userId,
-                                                                                 @PathVariable("eventId") Long eventId) {
+    public ResponseEntity<List<ParticipationRequestDto>> getRequestsByUserAndEvent(
+            @PathVariable("userId") Long userId,
+            @PathVariable("eventId") Long eventId) {
         List<Request> requests = requestService.getRequestsByUserIdAndEventId(eventId, userId);
         return new ResponseEntity<>(requests.stream().map(RequestMapper::toDto).toList(), HttpStatus.OK);
     }
@@ -117,8 +119,9 @@ public class PrivateController {
     public ResponseEntity<EventRequestStatusUpdateResultDto> updateRequestsByUserAndEvent(
             @PathVariable("userId") Long userId,
             @PathVariable("eventId") Long eventId,
-            @Valid @RequestBody  EventRequestStatusUpdateRequestDto request) {
-        List<List<Request>> requests = requestService.updateRequests(userId, eventId, request.getRequestIds(), request.getState());
+            @Valid @RequestBody(required = false) EventRequestStatusUpdateRequestDto request) {
+        List<List<Request>> requests = requestService.updateRequests(userId,
+                eventId, request == null ? List.of() : request.getRequestIds(), request == null ? RequestStateAction.CONFIRMED : request.getStatus());
         EventRequestStatusUpdateResultDto result = new EventRequestStatusUpdateResultDto();
         result.setConfirmedRequests(requests.get(0).stream().map(RequestMapper::toDto).toList());
         result.setRejectedRequests(requests.get(1).stream().map(RequestMapper::toDto).toList());

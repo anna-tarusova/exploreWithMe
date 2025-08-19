@@ -7,7 +7,7 @@ import ru.practicum.entities.Event;
 @Component
 public class EventMapper {
 
-    public static Event toEntity(RequestEventDto requestEventDto) {
+    public static Event toEntity(NewEventDto requestEventDto) {
         if (requestEventDto == null) return null;
         Event event = new Event();
         event.setAnnotation(requestEventDto.getAnnotation());

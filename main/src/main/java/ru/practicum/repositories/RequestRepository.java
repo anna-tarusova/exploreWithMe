@@ -13,17 +13,24 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Query(nativeQuery = true, value = "SELECT * FROM requests r WHERE r.user_id = :id")
     List<Request> findByUserId(@Param("id") Long id);
 
-    List<Request> findByEventId(Long id);
+    @Query(value = "SELECT r FROM Request r WHERE r.event.id = :id")
+    List<Request> findByEventId(@Param("id") Long id);
 
 
     Optional<Request> findByUserIdAndId(Long userId, Long id);
-
-
-    List<Request> findAllByUserIdAndEventId(Long userId, Long eventId);
 
     @Query(value = "SELECT count(*) FROM Request r " +
             "WHERE r.event.id = :eventId " +
             "and r.id not in (:ids)" +
             "and r.state = RequestState.CONFIRMED")
-    int countOfOtherConfirmedRequests(@Param("eventId") Long eventId, List<Long> ids);
+    int countOfOtherConfirmedRequests(@Param("eventId") Long eventId, @Param("ids") List<Long> ids);
+
+    @Query(value = "SELECT count(*) FROM Request r " +
+            "WHERE r.event.id = :eventId " +
+            "and r.state = RequestState.CONFIRMED")
+    int countOfConfirmedRequests(@Param("eventId") Long eventId);
+
+    @Query(value = "SELECT count(*) FROM Request r " +
+            "WHERE r.event.id = :eventId")
+    int countOfRequests(@Param("eventId") Long eventId);
 }

@@ -6,7 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import ru.practicum.client.StatsServerClient;
+import ru.practicum.dto.EventShortDto;
 import ru.practicum.dto.UpdateEventUserRequestDto;
+import ru.practicum.dtos.ViewStatsDto;
 import ru.practicum.entities.Category;
 import ru.practicum.entities.Event;
 import ru.practicum.entities.enums.Sort;
@@ -14,35 +17,29 @@ import ru.practicum.entities.enums.EventState;
 import ru.practicum.entities.enums.UpdateStateAction;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
+import ru.practicum.mappers.EventMapper;
 import ru.practicum.repositories.CategoriesRepository;
 import ru.practicum.repositories.EventRepository;
-import ru.practicum.repositories.EventSpecification;
+import ru.practicum.specifications.EventSpecification;
+import ru.practicum.repositories.RequestRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Component
 @AllArgsConstructor
 public class EventServiceImpl implements EventService {
+    private final StatsServerClient statsServerClient;
     private final EventRepository eventRepository;
     private final CategoriesRepository categoriesRepository;
+    private final RequestRepository requestRepository;
 
     @Override
     public Event saveEvent(Event event) {
         if (event.getId() == null) {
-            event.setState(EventState.WAITING);
-        } else {
-            Event eventInDB = eventRepository.findById(event.getId())
-                    .orElseThrow(() -> new NotFoundException((String.format("An event with id=%d is not found", event.getId()))));
-            if (event.getState() == EventState.PUBLISHED &&
-                    eventInDB.getState() != EventState.WAITING
-            ) {
-                throw new ConflictException("The event is not in the WAITING state");
-            } else if (event.getState() == EventState.CANCELLED &&
-                    eventInDB.getState() == EventState.PUBLISHED
-            ) {
-                throw new ConflictException("The event is in the PUBLISHED state");
-            }
+            event.setState(EventState.PENDING);
         }
 
         return eventRepository.save(event);
@@ -67,29 +64,72 @@ public class EventServiceImpl implements EventService {
                                  LocalDateTime rangeEnd,
                                  int from,
                                  int size) {
-        return eventRepository.findEvents(users, states, categories, rangeStart, rangeEnd, from, size);
-    }
 
-    @Override
-    public List<Event> getEventsPublic(String text,
-                                       List<Long> categories,
-                                       Boolean paid,
-                                       LocalDateTime rangeStart,
-                                       LocalDateTime rangeEnd,
-                                       Boolean onlyAvailable,
-                                       Sort sort,
-                                       int from,
-                                       int size) {
-        Specification<Event> spec = EventSpecification.filterEvents(rangeStart, rangeEnd, paid);
+        Specification<Event> spec = EventSpecification.filterEvents(rangeStart, rangeEnd, null, states, categories, users);
         int page = from / size;
         Pageable pageable = PageRequest.of(page, size);
         return eventRepository.findAll(spec, pageable).stream().toList();
     }
 
     @Override
+    public List<EventShortDto> getEventsPublic(String text,
+                                               List<Long> users,
+                                               List<Long> categories,
+                                               Boolean paid,
+                                               LocalDateTime rangeStart,
+                                               LocalDateTime rangeEnd,
+                                               Boolean onlyAvailable,
+                                               Sort sort,
+                                               int from,
+                                               int size) {
+        Specification<Event> spec = EventSpecification.filterEvents(
+                rangeStart, rangeEnd, paid, null, categories, users);
+
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
+        List<Event> events = eventRepository.findAll(spec, pageable).stream().toList();
+
+        HashMap<String, Event> eventsMap = new HashMap<>();
+        events.forEach(e -> eventsMap.put("/events/" + e.getId(), e));
+
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.of(1900, 1, 1, 0, 0, 0);
+        }
+        if (rangeEnd == null) {
+            rangeEnd = LocalDateTime.of(9999, 12, 31, 0, 0, 0);
+        }
+
+        List<ViewStatsDto> views = statsServerClient.stats(rangeStart, rangeEnd,
+                events.stream().map(e -> "/events/" + e.getId()).toList(), true);
+
+        HashMap<String, Integer> viewsMap = new HashMap<>();
+        views.forEach(view -> viewsMap.put(view.getUri(), view.getHits()));
+
+        if (sort == Sort.VIEWS) {
+            views.sort((a, b) -> Math.toIntExact(b.getHits() - a.getHits()));
+            List<Event> newOrder = new ArrayList<>();
+            views.forEach(view -> {
+                newOrder.add(eventsMap.get(view.getUri()));
+                eventsMap.remove(view.getUri());
+            });
+            newOrder.addAll(eventsMap.values());
+            events = newOrder;
+        }
+
+        List<EventShortDto> result = events.stream().map(EventMapper::toShortDto).toList();
+        result.forEach(eventShortDto -> {
+            String uri = "/events/" + eventShortDto.getId();
+            if (viewsMap.containsKey(uri)) {
+                eventShortDto.setViews(viewsMap.get(uri));
+            }
+        });
+        return result;
+    }
+
+    @Override
     public Event getById(Long id) {
         return eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("An event with id = %d does not exist", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("The event with id = %d does not exist", id)));
     }
 
     @Override
@@ -98,21 +138,26 @@ public class EventServiceImpl implements EventService {
             Event eventInDb = eventRepository.findByUserIdAndId(userId, eventId)
                     .orElseThrow(() -> new NotFoundException(String.format("Event with id = %d of user with" +
                             " id = %d is not found", eventId, userId)));
+
+            if (eventInDb.getState() == EventState.PUBLISHED) {
+                throw new ConflictException("It's not allowed to change published event");
+            }
+
             if (dto.getTitle() != null) {
                 eventInDb.setTitle(dto.getTitle());
             }
-            if (dto.getState() != null) {
-                if (eventInDb.getState() == EventState.WAITING && dto.getState() != UpdateStateAction.CANCEL_REVIEW) {
+
+            if (dto.getStateAction() != null) {
+                if (eventInDb.getState() == EventState.PENDING && dto.getStateAction() != UpdateStateAction.CANCEL_REVIEW) {
                     throw new ConflictException("Published event can be only cancelled");
-                } else if (eventInDb.getState() == EventState.CANCELLED && dto.getState() != UpdateStateAction.SEND_TO_REVIEW) {
+                } else if (eventInDb.getState() == EventState.CANCELED && dto.getStateAction() != UpdateStateAction.SEND_TO_REVIEW) {
                     throw new ConflictException("Cancelled event can be only published");
-                } else if (eventInDb.getState() == EventState.PUBLISHED) {
-                    throw new ConflictException("It's not allowed to change publish");
                 }
-                if (dto.getState() == UpdateStateAction.SEND_TO_REVIEW) {
-                    eventInDb.setState(EventState.WAITING);
+
+                if (dto.getStateAction() == UpdateStateAction.SEND_TO_REVIEW) {
+                    eventInDb.setState(EventState.PENDING);
                 } else {
-                    eventInDb.setState(EventState.CANCELLED);
+                    eventInDb.setState(EventState.CANCELED);
                 }
             }
             if (dto.getPaid() != null) {
@@ -151,5 +196,10 @@ public class EventServiceImpl implements EventService {
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("Событие не может быть добавлено более одного раза в подборку");
         }
+    }
+
+    @Override
+    public int countConfirmedRequests(Long eventId) {
+        return requestRepository.countOfConfirmedRequests(eventId);
     }
 }

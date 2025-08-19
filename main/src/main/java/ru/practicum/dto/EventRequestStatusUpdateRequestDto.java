@@ -11,5 +11,5 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventRequestStatusUpdateRequestDto {
     List<Long> requestIds;
-    RequestStateAction state;
+    RequestStateAction status;
 }

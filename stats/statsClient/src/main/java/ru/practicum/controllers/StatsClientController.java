@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.client.StatsServerClient;
 import ru.practicum.dtos.HitDto;
+import ru.practicum.dtos.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +25,7 @@ public class StatsClientController {
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<Object> stats(
+    public List<ViewStatsDto> stats(
             @RequestParam
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime start,

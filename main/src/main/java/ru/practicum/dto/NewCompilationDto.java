@@ -1,6 +1,7 @@
 package ru.practicum.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 public class NewCompilationDto {
     List<Long> events;
-    Boolean pinned;
+    Boolean pinned = false;
+    @Size(max = 50)
     @NotBlank(message = "Название подборки событий не может быть пустой")
     String title;
 }

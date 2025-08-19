@@ -16,6 +16,7 @@ public class Category {
     @Id()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
+    @Column(unique = true)
     String name;
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Event> events = new ArrayList<>();
