@@ -8,7 +8,6 @@ import ru.practicum.entities.enums.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 public interface EventService {
     Event saveEvent(Event event);

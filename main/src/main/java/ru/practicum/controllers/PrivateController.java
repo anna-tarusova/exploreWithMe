@@ -19,7 +19,6 @@ import ru.practicum.services.RequestService;
 import ru.practicum.services.UserService;
 
 import java.util.List;
-import java.util.Set;
 
 import static ru.practicum.mappers.EventMapper.toDto;
 import static ru.practicum.mappers.EventMapper.toEntity;
