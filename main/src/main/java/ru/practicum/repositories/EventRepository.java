@@ -15,7 +15,7 @@ import java.util.Set;
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
     @Query(nativeQuery = true, value = "SELECT * FROM events e " +
             "WHERE e.user_id = :id OFFSET :ofs LIMIT :lim")
-    Set<Event> findByUserId(@Param("id") Long id, @Param("ofs") int ofs, @Param("lim") int lim);
+    List<Event> findByUserId(@Param("id") Long id, @Param("ofs") int ofs, @Param("lim") int lim);
 
     Optional<Event> findByUserIdAndId(Long userId, Long eventId);
 

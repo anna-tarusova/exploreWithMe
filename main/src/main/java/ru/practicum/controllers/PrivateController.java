@@ -57,7 +57,7 @@ public class PrivateController {
             @RequestParam(defaultValue = "10") int size
     ) {
 
-        Set<Event> events = eventService.getEventsByUserId(userId, from, size);
+        List<Event> events = eventService.getEventsByUserId(userId, from, size);
         List<EventShortDto> eventDtos = events.stream().map(EventMapper::toShortDto).toList();
         return new ResponseEntity<>(eventDtos, HttpStatus.OK);
     }

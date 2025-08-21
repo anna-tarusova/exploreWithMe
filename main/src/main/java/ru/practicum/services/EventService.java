@@ -15,7 +15,7 @@ public interface EventService {
 
     Event getEventByUserIdAndId(Long eventId, Long id);
 
-    Set<Event> getEventsByUserId(Long userId, int from, int size);
+    List<Event> getEventsByUserId(Long userId, int from, int size);
 
     List<Event> getEvents(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart,
                           LocalDateTime rangeEnd, int from, int size);

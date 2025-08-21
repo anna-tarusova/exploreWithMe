@@ -54,8 +54,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Set<Event> getEventsByUserId(Long userId, int from, int size) {
-        return new HashSet<>(eventRepository.findByUserId(userId, from, size));
+    public List<Event> getEventsByUserId(Long userId, int from, int size) {
+        return eventRepository.findByUserId(userId, from, size);
     }
 
     @Override
