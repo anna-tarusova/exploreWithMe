@@ -8,14 +8,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewCompilationDto {
-    List<Long> events;
+    Set<Long> events;
     Boolean pinned = false;
     @Size(max = 50)
     @NotBlank(message = "Название подборки событий не может быть пустой")

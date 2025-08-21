@@ -1,10 +1,11 @@
 package ru.practicum.mappers;
 
-import org.springframework.stereotype.Component;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.dto.*;
 import ru.practicum.entities.Event;
 
-@Component
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventMapper {
 
     public static Event toEntity(NewEventDto requestEventDto) {

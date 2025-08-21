@@ -91,7 +91,7 @@ public class EventSpecification {
 
     public static Specification<Event> order() {
         return (root, query, criteriaBuilder) -> {
-            query.orderBy(criteriaBuilder.asc(root.get("eventDate")));
+            query.orderBy(criteriaBuilder.asc(root.get("id")));
             return null;
         };
     }

@@ -6,7 +6,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.NewCompilationDto;
 import ru.practicum.dto.UpdateCompilationRequestDto;
 import ru.practicum.entities.Compilation;
@@ -17,19 +18,23 @@ import ru.practicum.mappers.CompilationMapper;
 import ru.practicum.repositories.CompilationRepository;
 import ru.practicum.repositories.EventRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-@Component
+@Service
+@Transactional(readOnly = true)
 @AllArgsConstructor
 public class CompilationServiceImpl implements CompilationService {
     private CompilationRepository compilationRepository;
     private EventRepository eventRepository;
 
+    @Transactional(readOnly = false)
     public Compilation createCompilation(NewCompilationDto newCompilationDto) {
         try {
             Compilation compilation = CompilationMapper.toEntity(newCompilationDto);
             if (newCompilationDto.getEvents() != null) {
-                List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
+                Set<Event> events = new HashSet<>(eventRepository.findAllById(newCompilationDto.getEvents()));
                 compilation.setEvents(events);
             }
             return compilationRepository.save(compilation);
@@ -39,11 +44,13 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void deleteCompilation(Long compId) {
         compilationRepository.deleteById(compId);
     }
 
     @Override
+    @Transactional
     public Compilation updateCompilation(Long compId, UpdateCompilationRequestDto request) {
         try {
             Compilation compilation = compilationRepository.findById(compId)
@@ -55,7 +62,7 @@ public class CompilationServiceImpl implements CompilationService {
                 compilation.setPinned(request.getPinned());
             }
             if (request.getEvents() != null) {
-                List<Event> events = eventRepository.findAllById(request.getEvents());
+                Set<Event> events = new HashSet(eventRepository.findAllById(request.getEvents()));
                 compilation.setEvents(events);
             }
             return compilationRepository.save(compilation);
@@ -66,8 +73,11 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public Compilation getCompilation(Long id) {
-        return compilationRepository.findById(id)
+        List<Event> events = eventRepository.eventsOfCompilation(id);
+        Compilation compilation = compilationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Compilation not found"));
+        compilation.setEvents(new HashSet<>(events));
+        return compilation;
     }
 
     @Override

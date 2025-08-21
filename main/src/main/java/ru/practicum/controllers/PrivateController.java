@@ -19,6 +19,7 @@ import ru.practicum.services.RequestService;
 import ru.practicum.services.UserService;
 
 import java.util.List;
+import java.util.Set;
 
 import static ru.practicum.mappers.EventMapper.toDto;
 import static ru.practicum.mappers.EventMapper.toEntity;
@@ -56,7 +57,7 @@ public class PrivateController {
             @RequestParam(defaultValue = "10") int size
     ) {
 
-        List<Event> events = eventService.getEventsByUserId(userId, from, size);
+        Set<Event> events = eventService.getEventsByUserId(userId, from, size);
         List<EventShortDto> eventDtos = events.stream().map(EventMapper::toShortDto).toList();
         return new ResponseEntity<>(eventDtos, HttpStatus.OK);
     }

@@ -3,18 +3,19 @@ package ru.practicum.services;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.dto.UpdateEventUserRequestDto;
 import ru.practicum.entities.Event;
-import ru.practicum.entities.enums.Sort;
+import ru.practicum.entities.enums.SortEvents;
 import ru.practicum.entities.enums.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface EventService {
     Event saveEvent(Event event);
 
     Event getEventByUserIdAndId(Long eventId, Long id);
 
-    List<Event> getEventsByUserId(Long userId, int from, int size);
+    Set<Event> getEventsByUserId(Long userId, int from, int size);
 
     List<Event> getEvents(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart,
                           LocalDateTime rangeEnd, int from, int size);
@@ -27,7 +28,7 @@ public interface EventService {
             LocalDateTime rangeStart,
             LocalDateTime rangeEnd,
             Boolean onlyAvailable,
-            Sort sort,
+            SortEvents sort,
             int from,
             int size);
 

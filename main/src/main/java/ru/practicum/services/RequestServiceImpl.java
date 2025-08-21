@@ -2,13 +2,13 @@ package ru.practicum.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.entities.Event;
 import ru.practicum.entities.Request;
 import ru.practicum.entities.enums.EventState;
 import ru.practicum.entities.enums.RequestState;
 import ru.practicum.entities.enums.RequestStateAction;
-import ru.practicum.exceptions.BadRequestException;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.repositories.EventRepository;
@@ -18,14 +18,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Component
+@Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
 
     @Override
+    @Transactional
     public Request saveRequest(Request request) {
         try {
             Event event = request.getEvent();
@@ -79,6 +81,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public List<List<Request>> updateRequests(Long userId, Long eventId, List<Long> ids, RequestStateAction stateAction) {
         try {
             Event event = eventRepository.findByUserIdAndId(userId, eventId)

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.constants.Constants;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class NewEventDto {
     @Size(min = 20, max = 2000)
-    @NotNull
     @NotBlank
     String annotation;
     @NotNull
@@ -22,7 +22,7 @@ public class NewEventDto {
     @NotBlank(message = "Описание события не может быть пустым")
     String description;
     LocationDto location;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = Constants.DATE_TIME_PATTERN)
     @NotNull(message = "Дата события обязательна")
     @Future(message = "Дата события должна быть в будущем")
     LocalDateTime eventDate;

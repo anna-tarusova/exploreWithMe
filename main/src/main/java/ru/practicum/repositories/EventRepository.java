@@ -9,12 +9,13 @@ import ru.practicum.entities.Event;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
     @Query(nativeQuery = true, value = "SELECT * FROM events e " +
             "WHERE e.user_id = :id OFFSET :ofs LIMIT :lim")
-    List<Event> findByUserId(@Param("id") Long id, @Param("ofs") int ofs, @Param("lim") int lim);
+    Set<Event> findByUserId(@Param("id") Long id, @Param("ofs") int ofs, @Param("lim") int lim);
 
     Optional<Event> findByUserIdAndId(Long userId, Long eventId);
 
@@ -23,4 +24,9 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
                     "UNION ALL " +
                     "SELECT False WHERE NOT EXISTS (SELECT 1 FROM Events e WHERE e.category_id = :id)")
     boolean doEventsExists(@Param("id") Long categoryId);
+
+    @Query(nativeQuery = true,
+            value = "SELECT * FROM events e JOIN compilation_events ce ON (ce.event_id = e.id) " +
+                    "WHERE ce.compilation_id = :id")
+    List<Event> eventsOfCompilation(@Param("id") Long compilationId);
 }

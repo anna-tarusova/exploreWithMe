@@ -19,7 +19,7 @@ import ru.practicum.entities.Category;
 import ru.practicum.entities.Compilation;
 import ru.practicum.entities.Event;
 import ru.practicum.entities.enums.EventState;
-import ru.practicum.entities.enums.Sort;
+import ru.practicum.entities.enums.SortEvents;
 import ru.practicum.exceptions.BadRequestException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.CategoryMapper;
@@ -30,7 +30,6 @@ import ru.practicum.services.CompilationService;
 import ru.practicum.services.EventService;
 
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +52,7 @@ public class PublicController extends BaseController {
             @RequestParam(required = false) String rangeStart,
             @RequestParam(required = false) String rangeEnd,
             @RequestParam(required = false) Boolean onlyAvailable,
-            @RequestParam(required = false) Sort sort,
+            @RequestParam(required = false) SortEvents sort,
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size
     ) {

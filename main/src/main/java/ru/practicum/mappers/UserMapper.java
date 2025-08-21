@@ -1,8 +1,11 @@
 package ru.practicum.mappers;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.dto.UserDto;
 import ru.practicum.entities.User;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
 
     // User -> UserDto

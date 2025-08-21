@@ -1,10 +1,11 @@
 package ru.practicum.mappers;
 
-import org.springframework.stereotype.Component;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.dto.*;
 import ru.practicum.entities.Compilation;
 
-@Component
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CompilationMapper {
     public static Compilation toEntity(NewCompilationDto compilationDto) {
         if (compilationDto == null) return null;

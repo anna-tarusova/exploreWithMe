@@ -4,15 +4,17 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsServerClient;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.dto.UpdateEventUserRequestDto;
 import ru.practicum.dtos.ViewStatsDto;
 import ru.practicum.entities.Category;
 import ru.practicum.entities.Event;
-import ru.practicum.entities.enums.Sort;
+import ru.practicum.entities.enums.SortEvents;
 import ru.practicum.entities.enums.EventState;
 import ru.practicum.entities.enums.UpdateStateAction;
 import ru.practicum.exceptions.ConflictException;
@@ -24,12 +26,11 @@ import ru.practicum.specifications.EventSpecification;
 import ru.practicum.repositories.RequestRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-@Component
+@Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
     private final StatsServerClient statsServerClient;
     private final EventRepository eventRepository;
@@ -37,6 +38,7 @@ public class EventServiceImpl implements EventService {
     private final RequestRepository requestRepository;
 
     @Override
+    @Transactional
     public Event saveEvent(Event event) {
         if (event.getId() == null) {
             event.setState(EventState.PENDING);
@@ -52,8 +54,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getEventsByUserId(Long userId, int from, int size) {
-        return eventRepository.findByUserId(userId, from, size);
+    public Set<Event> getEventsByUserId(Long userId, int from, int size) {
+        return new HashSet<>(eventRepository.findByUserId(userId, from, size));
     }
 
     @Override
@@ -65,9 +67,11 @@ public class EventServiceImpl implements EventService {
                                  int from,
                                  int size) {
 
+        Sort sortEvents = Sort.by(Sort.Direction.ASC, "id");
+
         Specification<Event> spec = EventSpecification.filterEvents(rangeStart, rangeEnd, null, states, categories, users);
         int page = from / size;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, sortEvents);
         return eventRepository.findAll(spec, pageable).stream().toList();
     }
 
@@ -79,14 +83,16 @@ public class EventServiceImpl implements EventService {
                                                LocalDateTime rangeStart,
                                                LocalDateTime rangeEnd,
                                                Boolean onlyAvailable,
-                                               Sort sort,
+                                               SortEvents sort,
                                                int from,
                                                int size) {
+        Sort sortEvents = Sort.by("id").ascending();
+
         Specification<Event> spec = EventSpecification.filterEvents(
                 rangeStart, rangeEnd, paid, null, categories, users);
 
         int page = from / size;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, sortEvents);
         List<Event> events = eventRepository.findAll(spec, pageable).stream().toList();
 
         HashMap<String, Event> eventsMap = new HashMap<>();
@@ -99,13 +105,11 @@ public class EventServiceImpl implements EventService {
             rangeEnd = LocalDateTime.of(9999, 12, 31, 0, 0, 0);
         }
 
-        List<ViewStatsDto> views = statsServerClient.stats(rangeStart, rangeEnd,
-                events.stream().map(e -> "/events/" + e.getId()).toList(), true);
-
-        HashMap<String, Integer> viewsMap = new HashMap<>();
+        List<ViewStatsDto> views = statsServerClient.stats(rangeStart, rangeEnd, eventsMap.keySet().stream().toList(), true);
+        HashMap<String, Long> viewsMap = new HashMap<>();
         views.forEach(view -> viewsMap.put(view.getUri(), view.getHits()));
 
-        if (sort == Sort.VIEWS) {
+        if (sort == SortEvents.VIEWS) {
             views.sort((a, b) -> Math.toIntExact(b.getHits() - a.getHits()));
             List<Event> newOrder = new ArrayList<>();
             views.forEach(view -> {
@@ -133,6 +137,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public Event updateEvent(Long userId, Long eventId, UpdateEventUserRequestDto dto) {
         try {
             Event eventInDb = eventRepository.findByUserIdAndId(userId, eventId)

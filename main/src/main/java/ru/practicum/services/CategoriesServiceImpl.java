@@ -1,11 +1,11 @@
 package ru.practicum.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.entities.Category;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
@@ -15,13 +15,15 @@ import ru.practicum.repositories.EventRepository;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CategoriesServiceImpl implements CategoriesService {
     private final CategoriesRepository categoriesRepository;
     private final EventRepository eventRepository;
 
     @Override
+    @Transactional
     public Category saveCategory(Category category) {
         Optional<Category> otherCategory = categoriesRepository.findByName(category.getName());
         if (otherCategory.isPresent() && otherCategory.get().getId() != category.getId()) {
@@ -31,6 +33,7 @@ public class CategoriesServiceImpl implements CategoriesService {
     }
 
     @Override
+    @Transactional
     public void deleteCategory(Long id) {
         categoriesRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Category with id=%d was not found", id)));
@@ -41,6 +44,7 @@ public class CategoriesServiceImpl implements CategoriesService {
     }
 
     @Override
+    @Transactional
     public Category partiallyUpdate(Category category, Long id) {
         Optional<Category> otherCategory = categoriesRepository.findByName(category.getName());
         if (otherCategory.isPresent() && otherCategory.get().getId() != id) {

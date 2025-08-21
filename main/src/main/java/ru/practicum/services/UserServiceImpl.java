@@ -5,7 +5,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.UserDto;
 import ru.practicum.entities.User;
 import ru.practicum.exceptions.ConflictException;
@@ -17,12 +18,14 @@ import ru.practicum.specifications.UserSpecification;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public User saveUser(User user) {
         Optional<User> userInDb = userRepository.findByEmail(user.getEmail());
 
@@ -34,6 +37,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
         userRepository.findById(id)
         .orElseThrow(() -> new NotFoundException(String.format("User with id=%d was not found", id)));

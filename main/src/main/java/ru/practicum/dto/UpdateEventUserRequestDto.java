@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.constants.Constants;
 import ru.practicum.entities.enums.UpdateStateAction;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class UpdateEventUserRequestDto {
     @Size(min = 20, max = 7000)
     String description;
     @FutureOrPresent(message = "The date must be in the future or present.")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = Constants.DATE_TIME_PATTERN)
     LocalDateTime eventDate;
     LocationDto location;
     Boolean paid;

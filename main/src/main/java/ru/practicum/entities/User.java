@@ -5,8 +5,8 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
@@ -21,5 +21,5 @@ public class User {
     @Column(unique = true, nullable = false)
     String email;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Event> events = new ArrayList<>();
+    Set<Event> events = new HashSet<>();
 }

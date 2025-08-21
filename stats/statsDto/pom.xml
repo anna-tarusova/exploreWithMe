@@ -6,12 +6,12 @@
     <parent>
         <groupId>ru.practicum</groupId>
         <artifactId>stats</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>statsDto</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <dependencies>
         <!-- Jackson для аннотаций -->
