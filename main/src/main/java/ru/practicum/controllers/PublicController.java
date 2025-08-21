@@ -54,11 +54,19 @@ public class PublicController extends BaseController {
             @RequestParam(required = false) Boolean onlyAvailable,
             @RequestParam(required = false) SortEvents sort,
             @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            HttpServletRequest request
     ) {
         if (categories != null && categories.stream().anyMatch(c -> c <= 0)) {
             throw new BadRequestException("Bad category");
         }
+
+        HitDto hit = new HitDto();
+        hit.setIp(request.getRemoteAddr());
+        hit.setUri(request.getRequestURI());
+        hit.setApp("ewm");
+        hit.setTimestamp(LocalDateTime.now());
+        statsServerClient.hit(hit);
 
         LocalDateTime rs = rangeStart == null ? null : LocalDateTime.parse(rangeStart, df);
         LocalDateTime re = rangeEnd == null ? null : LocalDateTime.parse(rangeEnd, df);

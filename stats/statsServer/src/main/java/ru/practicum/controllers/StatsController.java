@@ -28,7 +28,7 @@ public class StatsController {
     }
 
     @GetMapping("/stats")
-    public List<ViewStatsDto> getStats(
+    public ResponseEntity<List<ViewStatsDto>> getStats(
             @RequestParam
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime start,
@@ -43,6 +43,10 @@ public class StatsController {
             @RequestParam(defaultValue = "false")
             Boolean unique) {
 
-        return service.getViewStats(start, end, uris, unique);
+        if (start.isAfter(end)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(service.getViewStats(start, end, uris, unique), HttpStatus.OK);
     }
 }
