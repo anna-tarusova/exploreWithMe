@@ -7,11 +7,13 @@ COPY ./main/pom.xml ./main/
 COPY ./stats/pom.xml ./stats/
 COPY ./stats/statsDto/pom.xml ./stats/statsDto/
 COPY ./stats/statsClient/pom.xml ./stats/statsClient/
+COPY ./stats/statsServer/pom.xml ./stats/statsServer/
 
 COPY ./main/src ./main/src
 COPY ./stats/statsDto/src ./stats/statsDto/src
 COPY ./stats/statsServer/src ./stats/statsServer/src
 COPY ./stats/statsClient/src ./stats/statsClient/src
+COPY ./stats/statsServer/src ./stats/statsServer/src
 
 RUN mvn clean package -pl ./main -am -DskipTests
 
