@@ -6,7 +6,7 @@
     <parent>
         <groupId>ru.practicum</groupId>
         <artifactId>explore-with-me</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -32,8 +32,8 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
-                <source>17</source>
-                <target>17</target>
+                <source>21</source>
+                <target>21</target>
                 <annotationProcessorPaths>
                     <path>
                         <groupId>org.projectlombok</groupId>
