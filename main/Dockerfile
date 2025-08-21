@@ -6,7 +6,6 @@ COPY pom.xml .
 COPY ./main/pom.xml ./main/
 COPY ./stats/pom.xml ./stats/
 COPY ./stats/statsDto/pom.xml ./stats/statsDto/
-COPY ./stats/statsServer/pom.xml ./stats/statsServer/
 COPY ./stats/statsClient/pom.xml ./stats/statsClient/
 
 COPY ./main/src ./main/src
