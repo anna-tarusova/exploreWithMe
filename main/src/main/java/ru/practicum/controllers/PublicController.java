@@ -56,8 +56,7 @@ public class PublicController extends BaseController {
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size
     ) {
-        if (categories != null && categories.stream().anyMatch(c -> c <= 0))
-        {
+        if (categories != null && categories.stream().anyMatch(c -> c <= 0)) {
             throw new BadRequestException("Bad category");
         }
 

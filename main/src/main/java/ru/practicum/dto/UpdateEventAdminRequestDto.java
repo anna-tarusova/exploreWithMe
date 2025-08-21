@@ -2,7 +2,6 @@ package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
