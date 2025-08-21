@@ -54,6 +54,7 @@ services:
 
   ewm-service:
     environment:
+      STATS_SERVER_URL: http://stats-server:9090
       SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm-db
     build:
       context: .
@@ -71,6 +72,7 @@ services:
       - ewm-db
     networks:
       - ewm-network
+      - stats-network
 
   ewm-db:
     image: postgres:16.1

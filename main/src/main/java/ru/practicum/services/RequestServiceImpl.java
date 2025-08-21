@@ -42,10 +42,12 @@ public class RequestServiceImpl implements RequestService {
             if (event.getParticipantLimit() == 0) {
                 request.setState(RequestState.CONFIRMED);
             } else {
-                int confirmedRequestsCount = requestRepository.countOfRequests(event.getId());
-                int remainRequestsCount = event.getParticipantLimit() - confirmedRequestsCount;
-                if (remainRequestsCount <= 0) {
-                    throw new ConflictException("Count of requests exceeded");
+                if (!event.getRequestModeration()) {
+                    int confirmedRequestsCount = requestRepository.countOfRequests(event.getId());
+                    int remainRequestsCount = event.getParticipantLimit() - confirmedRequestsCount;
+                    if (remainRequestsCount <= 0) {
+                        throw new ConflictException("Count of requests exceeded");
+                    }
                 }
                 request.setState(RequestState.PENDING);
             }
