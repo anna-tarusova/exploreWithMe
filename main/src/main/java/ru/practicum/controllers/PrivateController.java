@@ -10,7 +10,7 @@ import ru.practicum.entities.Category;
 import ru.practicum.entities.Event;
 import ru.practicum.entities.Request;
 import ru.practicum.entities.User;
-import ru.practicum.entities.enums.RequestStateAction;
+import ru.practicum.dto.enums.RequestStateAction;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.mappers.RequestMapper;
 import ru.practicum.services.CategoriesService;

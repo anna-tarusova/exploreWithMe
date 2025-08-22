@@ -3,7 +3,7 @@ package ru.practicum.dto;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.entities.enums.RequestStateAction;
+import ru.practicum.dto.enums.RequestStateAction;
 
 import java.util.List;
 

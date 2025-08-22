@@ -3,6 +3,7 @@ package ru.practicum.mappers;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.dto.UserDto;
+import ru.practicum.dto.UserShortDto;
 import ru.practicum.entities.User;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,6 +16,14 @@ public class UserMapper {
         dto.setId(user.getId());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
+        return dto;
+    }
+
+    public static UserShortDto toShortDto(User user) {
+        if (user == null) return null;
+        UserShortDto dto = new UserShortDto();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
         return dto;
     }
 

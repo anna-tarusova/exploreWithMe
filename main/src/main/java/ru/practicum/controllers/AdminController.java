@@ -11,7 +11,7 @@ import ru.practicum.entities.Compilation;
 import ru.practicum.entities.Event;
 import ru.practicum.entities.User;
 import ru.practicum.entities.enums.EventState;
-import ru.practicum.entities.enums.CreateStateAction;
+import ru.practicum.dto.enums.CreateStateAction;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.mappers.CompilationMapper;
 import ru.practicum.mappers.EventMapper;
