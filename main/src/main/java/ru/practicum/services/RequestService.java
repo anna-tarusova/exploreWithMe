@@ -1,7 +1,7 @@
 package ru.practicum.services;
 
 import ru.practicum.entities.Request;
-import ru.practicum.entities.enums.RequestStateAction;
+import ru.practicum.dto.enums.RequestStateAction;
 
 import java.util.List;
 

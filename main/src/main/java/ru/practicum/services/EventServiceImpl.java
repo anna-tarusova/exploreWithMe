@@ -16,7 +16,7 @@ import ru.practicum.entities.Category;
 import ru.practicum.entities.Event;
 import ru.practicum.entities.enums.SortEvents;
 import ru.practicum.entities.enums.EventState;
-import ru.practicum.entities.enums.UpdateStateAction;
+import ru.practicum.dto.enums.UpdateStateAction;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.EventMapper;

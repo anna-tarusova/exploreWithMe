@@ -8,7 +8,7 @@ import ru.practicum.entities.Event;
 import ru.practicum.entities.Request;
 import ru.practicum.entities.enums.EventState;
 import ru.practicum.entities.enums.RequestState;
-import ru.practicum.entities.enums.RequestStateAction;
+import ru.practicum.dto.enums.RequestStateAction;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.repositories.EventRepository;

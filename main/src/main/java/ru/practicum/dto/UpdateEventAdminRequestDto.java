@@ -7,7 +7,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.constants.Constants;
-import ru.practicum.entities.enums.CreateStateAction;
+import ru.practicum.dto.enums.CreateStateAction;
 
 import java.time.LocalDateTime;
 

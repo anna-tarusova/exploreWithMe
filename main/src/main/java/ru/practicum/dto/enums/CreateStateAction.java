@@ -1,4 +1,4 @@
-package ru.practicum.entities.enums;
+package ru.practicum.dto.enums;
 
 public enum CreateStateAction {
     PUBLISH_EVENT,

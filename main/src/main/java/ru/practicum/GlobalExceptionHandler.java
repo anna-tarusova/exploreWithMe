@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.practicum.exceptions.BadRequestException;
 import ru.practicum.exceptions.ConflictException;
+import ru.practicum.exceptions.ForbiddenException;
 import ru.practicum.exceptions.NotFoundException;
 
 import java.util.HashMap;
@@ -68,5 +69,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleBadRequestException(Exception ex) {
         Map<String, String> errorResponse = addErrorMessage(ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Map<String, String>> handleForbiddenException(Exception ex) {
+        Map<String, String> errorResponse = addErrorMessage(ex);
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 }
